@@ -1,0 +1,13 @@
+# INSTALL REQUIREMENTS:
+#1  pip install -U pip setuptools wheel pip-tools --timeout 60
+#2  pip-compile --upgrade requirements.in -o requirements.txt
+#3  pip-compile --upgrade requirements_dev.in -o requirements_dev.txt -c requirements.txt
+#4  pip-sync requirements.txt requirements_dev.txt --pip-args "--retries 10 --timeout 60"
+#   or pip install -r requirements.txt -r requirements_dev.txt --retries 10 --timeout 60
+
+# FORMAT CODE:
+# black .
+
+#
+ollama
+requests
