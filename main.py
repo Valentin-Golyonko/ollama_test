@@ -1,3 +1,10 @@
+"""
+Docs: https://ollama.com/blog/python-javascript-libraries
+
+ollama model: llama3 | llama2 | codellama | gemma | codegemma | mistral
+model list: https://ollama.com/library
+"""
+
 import logging
 from datetime import timedelta
 from functools import wraps
@@ -25,31 +32,35 @@ def time_it(func):
 
 @time_it
 def try_ollama_chat() -> None:
+
     model_out: Mapping[str, Any] = ollama_client.chat(
-        model="llama2",  # mistral
+        model="llama3",
         messages=[
             {
                 "role": "user",
                 "content": (
-                    f"Отредактируй текст и исправь ошибки правописания."
-                    f" Верни только исправленный текст."
-                    f" Язык текста - русский."
+                    f"""Отредактируй текст и исправь ошибки правописания."""
+                    f""" Верни только исправленный текст."""
+                    f""" Язык текста - русский."""
                 ),
             },
             {
                 "role": "user",
-                "content": f"""Текст:
-        
-                Серёзные рибята получили радосное известие. 
-                Всюду звенят децкие галаса. 
-                Вшколу при ехал извесный песатель. 
-                Он будет четать сваи интерестные рассказы. 
-                Щясливые школьники собрались на месный празник.
-                """,
+                "content": (
+                    f"""Текст:"""
+                    f""" Серёзные рибята получили радосное известие."""
+                    f""" Всюду звенят децкие галаса."""
+                    f""" Вшколу при ехал извесный песатель."""
+                    f""" Он будет четать сваи интерестные рассказы."""
+                    f""" Щясливые школьники собрались на месный празник."""
+                ),
             },
         ],
         stream=False,
         # format="json",
+        options={
+            "num_ctx": 4096,
+        },
     )
 
     content: str = model_out.get("message", {}).get("content")
@@ -62,27 +73,28 @@ def try_ollama_chat() -> None:
 def try_ollama_generate() -> None:
     """
     docs: https://github.com/ollama/ollama/blob/main/docs/api.md#generate-a-completion
-
-    ollama model: llama2 | mistral | gemma | codegemma |
     """
 
     person_level = "junior"
 
     model_out: Mapping[str, Any] = ollama_client.generate(
-        model="llama2",
+        model="llama3",
         prompt=(
             f"""You are professional Python software engineer."""
-            f"""Now you are hiring a new person for your new project."""
-            f"""Your goal is to evaluate a candidate's abilities."""
-            f"""You should generate ten different interview questions for {person_level} python developer."""
-            f"""Python version should be 3.6 and higher."""
-            f"""Your response should be a JSON, """
-            f"""where all ten questions should be structured like a """
-            f"""list of dictionaries with 'type', 'question', 'complexity' (from 1 to 5) keys."""
+            f""" Now you are hiring a new person for your new project."""
+            f""" Your goal is to evaluate a candidate's abilities."""
+            f""" You should generate ten different interview questions for {person_level} python developer."""
+            f""" Python version should be 3.6 and higher."""
+            f""" Your response should be a JSON,"""
+            f""" where all ten questions should be structured like a"""
+            f""" list of dictionaries with 'type', 'question', 'complexity' (from 1 to 5) keys."""
         ),
         format="json",
         stream=False,
         keep_alive="5m",
+        options={
+            "num_ctx": 4096,
+        },
     )
 
     created_at = model_out.get("created_at", "")
