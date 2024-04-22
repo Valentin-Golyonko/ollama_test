@@ -1,7 +1,7 @@
 """
 Docs: https://ollama.com/blog/python-javascript-libraries
 
-ollama model: llama3 | llama2 | codellama | gemma | codegemma | mistral
+ollama model: llama3 | llama2 | codellama | gemma | codegemma | mistral | llama2-uncensored
 model list: https://ollama.com/library
 """
 
@@ -15,7 +15,10 @@ from ollama import Client
 
 logger = logging.getLogger(__name__)
 
-ollama_client = Client(host="http://localhost:11434")
+ollama_client = Client(
+    host="http://localhost:11434",
+    timeout=(10, 5 * 60),
+)
 
 
 def time_it(func):
@@ -23,7 +26,6 @@ def time_it(func):
     def run_time(*args, **kwargs):
         t0 = perf_counter()
         result = func(*args, **kwargs)
-        # logger.debug(f"'{func.__name__}' = {timedelta(seconds=perf_counter() - t0)}")
         print(f"--- '{func.__name__}' = {timedelta(seconds=perf_counter() - t0)} ---")
         return result
 
@@ -37,11 +39,13 @@ def try_ollama_chat() -> None:
         model="llama3",
         messages=[
             {
-                "role": "user",
+                "role": "system",
                 "content": (
-                    f"""Отредактируй текст и исправь ошибки правописания."""
-                    f""" Верни только исправленный текст."""
-                    f""" Язык текста - русский."""
+                    f"""You are a text message moderator."""
+                    f""" Edit the text and correct spelling errors."""
+                    f""" Highlight all obscene words in the text with [ ] symbols."""
+                    f""" Return only the corrected text."""
+                    f""" The language of the text is Russian."""
                 ),
             },
             {
@@ -58,12 +62,13 @@ def try_ollama_chat() -> None:
         ],
         stream=False,
         # format="json",
+        keep_alive="5m",
         options={
-            "num_ctx": 4096,
+            "num_ctx": 2048,
         },
     )
 
-    content: str = model_out.get("message", {}).get("content")
+    content: str = model_out.get("message", {}).get("content", "n/a")
     print(content)
 
     return None
@@ -92,9 +97,6 @@ def try_ollama_generate() -> None:
         format="json",
         stream=False,
         keep_alive="5m",
-        options={
-            "num_ctx": 4096,
-        },
     )
 
     created_at = model_out.get("created_at", "")
