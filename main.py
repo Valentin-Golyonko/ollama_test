@@ -33,7 +33,7 @@ def time_it(func):
 
 
 @time_it
-def try_ollama_chat() -> None:
+def try_ollama_chat_ru_text() -> None:
 
     model_out: Mapping[str, Any] = ollama_client.chat(
         model="llama3",
@@ -42,16 +42,14 @@ def try_ollama_chat() -> None:
                 "role": "system",
                 "content": (
                     f"""You are a text message moderator."""
+                    f""" The language of the text is Russian. Do not translate it to English."""
                     f""" Edit the text and correct spelling errors."""
-                    f""" Highlight all obscene words in the text with [ ] symbols."""
                     f""" Return only the corrected text."""
-                    f""" The language of the text is Russian."""
                 ),
             },
             {
                 "role": "user",
                 "content": (
-                    f"""Текст:"""
                     f""" Серёзные рибята получили радосное известие."""
                     f""" Всюду звенят децкие галаса."""
                     f""" Вшколу при ехал извесный песатель."""
@@ -60,12 +58,51 @@ def try_ollama_chat() -> None:
                 ),
             },
         ],
-        stream=False,
+        # stream=False,
         # format="json",
-        keep_alive="5m",
-        options={
-            "num_ctx": 2048,
-        },
+        # keep_alive="5m",
+        # options={
+        #     "num_ctx": 2048,
+        # },
+    )
+
+    content: str = model_out.get("message", {}).get("content", "n/a")
+    print(content)
+
+    return None
+
+
+@time_it
+def try_ollama_chat_ru_obscene_words() -> None:
+
+    model_out: Mapping[str, Any] = ollama_client.chat(
+        model="llama3",
+        messages=[
+            {
+                "role": "system",
+                "content": (
+                    f"""You are a text message moderator."""
+                    f""" Determine: are there any obscene expressions in the text?"""
+                    f""" The language of the text is Russian. Do not translate it to English."""
+                    f""" Response: one line minified JSON,"""
+                    f""" 'has_obscene': are there any obscene expressions in the text?,"""
+                    f""" 'words': list of obscene words,"""
+                    f""" 'probability': obscene words probability."""
+                ),
+            },
+            {
+                "role": "user",
+                "content": (
+                    f"""хочу купить твой очуеный забор. черкани мне суч быро"""
+                ),
+            },
+        ],
+        # stream=False,
+        # format="json",
+        # keep_alive="5m",
+        # options={
+        #     "num_ctx": 2048,
+        # },
     )
 
     content: str = model_out.get("message", {}).get("content", "n/a")
@@ -144,14 +181,19 @@ def try_ollama_generate() -> None:
 
 
 if __name__ == "__main__":
-    # try_ollama_chat()
+    # try_ollama_chat_ru_text()
     """
     0:00:09.859082
     0:00:10.065670
     0:00:10.553045
     """
 
-    try_ollama_generate()
+    try_ollama_chat_ru_obscene_words()
+    """
+    0:00:04.965438
+    """
+
+    # try_ollama_generate()
     """
     
     """
